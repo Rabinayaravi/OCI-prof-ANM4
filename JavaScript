@@ -1,0 +1,40 @@
+// Wait for the document to be fully loaded
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Get the necessary elements from the DOM
+    const form = document.getElementById('uploadForm');          // Form to upload image
+    const imageInput = document.getElementById('image');         // File input for selecting image
+    const resultDiv = document.getElementById('prediction');     // Div to display the prediction result
+
+    // Add event listener to the form submission
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent form from submitting the traditional way
+
+        const file = imageInput.files[0];  // Get the uploaded file
+        const formData = new FormData();
+        formData.append("image", file);  // Append image file to the form data
+
+        // Create an XMLHttpRequest to send the image to the server
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/predict", true); // The backend route for prediction
+
+        // Handle the server's response
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                // On success, display the predicted digit
+                resultDiv.innerHTML = `<strong>Predicted Digit:</strong> ${xhr.responseText}`;
+            } else {
+                // On failure, display an error message
+                resultDiv.innerHTML = `<strong>Error:</strong> Unable to process the image. Please try again.`;
+            }
+        };
+
+        // Handle any request errors
+        xhr.onerror = function () {
+            resultDiv.innerHTML = `<strong>Error:</strong> An unexpected error occurred while sending the image.`;
+        };
+
+        // Send the FormData (image file) to the backend for prediction
+        xhr.send(formData);
+    });
+});
